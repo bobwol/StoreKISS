@@ -22,6 +22,12 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 
 @property (strong, nonatomic) id strongSelf;
 
+@property (assign, nonatomic) StoreKISSDataRequestStatus status;
+@property (strong, nonatomic) SKProductsRequest *skRequest;
+@property (strong, nonatomic) SKProductsResponse *skResponse;
+@property (strong, nonatomic) NSSet *productIds;
+@property (strong, nonatomic) NSError *error;
+
 @property (copy, nonatomic) StoreKISSDataRequestSuccessBlock success;
 @property (copy, nonatomic) StoreKISSDataRequestFailureBlock failure;
 
@@ -30,19 +36,14 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 
 @implementation StoreKISSDataRequest
 
-
-@synthesize status = _status;
-@synthesize skRequest = _skRequest;
-@synthesize skResponse = _skResponse;
 @synthesize reachability = _reachability;
-@synthesize error = _error;
 
 
 - (id)init
 {
 	if ((self = [super init]))
     {
-		_status = StoreKISSDataRequestStatusNew;
+		self.status = StoreKISSDataRequestStatusNew;
 	}
 	return self;
 }
@@ -62,7 +63,7 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 // ------------------------------------------------------------------------------------------
 - (id<StoreKISSReachabilityProtocol>)reachability
 {
-    ZAssert(_reachability != nil, @"Reachability wrapper must be provided!");   
+    NSAssert(_reachability != nil, @"Reachability wrapper must be provided!");
     return _reachability;
 }
 
@@ -84,10 +85,7 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 								  success:(StoreKISSDataRequestSuccessBlock)success
 								  failure:(StoreKISSDataRequestFailureBlock)failure
 {
-	if ([self isExecuting])
-    {
-		return;
-	}
+    NSAssert([self isExecuting] == NO, @"Data request is executing already.");
 	
 	self.success = success;
 	self.failure = failure;
@@ -95,15 +93,15 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 	if ([self.reachability hasReachableInternetConnection] == NO)
     {
         NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", @"")};
-		_error = [NSError errorWithDomain:StoreKISSErrorDomain
-                                     code:StoreKISSErrorNoInternetConnection
-                                 userInfo:userInfo];
+		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
+                                         code:StoreKISSErrorNoInternetConnection
+                                     userInfo:userInfo];
 		[self finish];
 		return;
 	}
 	
-    _productIds = productIds;
-	_skRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:self.productIds];
+    self.productIds = productIds;
+	self.skRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:self.productIds];
 	self.skRequest.delegate = self;
 	
 	[self start];
@@ -135,7 +133,7 @@ NSString * const StoreKISSNotificationDataRequestFailure =
     
 	[self.skRequest start];
     
-	_status = StoreKISSDataRequestStatusStarted;
+	self.status = StoreKISSDataRequestStatusStarted;
 	[[NSNotificationCenter defaultCenter] postNotificationName:StoreKISSNotificationDataRequestStarted
                                                         object:self];
 }
@@ -143,7 +141,7 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 
 - (void)finish
 {
-	_status = StoreKISSDataRequestStatusFinished;
+	self.status = StoreKISSDataRequestStatusFinished;
 	
 	if (self.error != nil)
     {
@@ -185,8 +183,23 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 - (void)productsRequest:(SKProductsRequest *)request
 	 didReceiveResponse:(SKProductsResponse *)receivedResponse
 {
-	_skResponse = receivedResponse;
-	[self finish];
+	self.skResponse = receivedResponse;
+}
+
+
+// ------------------------------------------------------------------------------------------
+#pragma mark - SKRequestDelegate
+// ------------------------------------------------------------------------------------------
+- (void)requestDidFinish:(SKRequest *)request
+{
+    [self finish];
+}
+
+
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+    self.error = error;
+    [self finish];
 }
 
 
