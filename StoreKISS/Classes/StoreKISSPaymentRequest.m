@@ -26,6 +26,12 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 
 @property (strong, nonatomic) id strongSelf;
 
+@property (assign, nonatomic) StoreKISSPaymentRequestStatus status;
+@property (strong, nonatomic) SKPayment *skPayment;
+@property (strong, nonatomic) NSArray *skTransactions;
+@property (strong, nonatomic) SKPaymentTransaction *skTransaction;
+@property (strong, nonatomic) NSError *error;
+
 @property (copy, nonatomic) StoreKISSPaymentRequestSuccessBlock success;
 @property (copy, nonatomic) StoreKISSPaymentRequestFailureBlock failure;
 
@@ -35,11 +41,6 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 @implementation StoreKISSPaymentRequest
 
 
-@synthesize status = _status;
-@synthesize skPayment = _skPayment;
-@synthesize skTransactions = _skTransactions;
-@synthesize skTransaction = _skTransaction;
-@synthesize error = _error;
 @synthesize reachability = _reachability;
 
 
@@ -47,7 +48,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
 	if ((self = [super init]))
     {
-		_status = StoreKISSPaymentRequestStatusNew;
+		self.status = StoreKISSPaymentRequestStatusNew;
 	}
 	return self;
 }
@@ -83,9 +84,9 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
     if ([self canMakePayments] == NO)
     {
         NSDictionary *userInfo = @{NSLocalizedDescriptionKey: @"In-App Purchasing is disabled."};
-		_error = [NSError errorWithDomain:StoreKISSErrorDomain
-                                     code:StoreKISSErrorIAPDisabled
-                                 userInfo:userInfo];
+		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
+                                         code:StoreKISSErrorIAPDisabled
+                                     userInfo:userInfo];
 	}
 }
 
@@ -95,9 +96,9 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
     if ([self.reachability hasReachableInternetConnection] == NO)
     {
         NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", @"")};
-		_error = [NSError errorWithDomain:StoreKISSErrorDomain
-                                     code:StoreKISSErrorNoInternetConnection
-                                 userInfo:userInfo];
+		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
+                                         code:StoreKISSErrorNoInternetConnection
+                                     userInfo:userInfo];
 	}
 }
 
@@ -107,9 +108,9 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
     if (skProduct == nil)
     {
         NSDictionary *userInfo = @{NSLocalizedDescriptionKey: @"SKProduct should not be nil."};
-		_error = [NSError errorWithDomain:StoreKISSErrorDomain
-                                     code:StoreKISSErrorInvalidSKProduct
-                                 userInfo:userInfo];
+		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
+                                         code:StoreKISSErrorInvalidSKProduct
+                                     userInfo:userInfo];
 	}
 }
 
@@ -139,7 +140,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
         return;
     }
 
-	_skPayment = [SKPayment paymentWithProduct:skProduct];
+	self.skPayment = [SKPayment paymentWithProduct:skProduct];
 	
 	[self start];
 }
@@ -191,7 +192,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     self.strongSelf = self;
 
-    _status = StoreKISSPaymentRequestStatusStarted;
+    self.status = StoreKISSPaymentRequestStatusStarted;
 	[[NSNotificationCenter defaultCenter] postNotificationName:StoreKISSNotificationPaymentRequestStarted
                                                         object:self];
     
@@ -204,7 +205,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     self.strongSelf = self;
     
-    _status = StoreKISSPaymentRequestStatusStarted;
+    self.status = StoreKISSPaymentRequestStatusStarted;
     [[NSNotificationCenter defaultCenter] postNotificationName:StoreKISSNotificationPaymentRequestStarted
                                                         object:self];
     
@@ -215,7 +216,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 
 - (void)finish
 {
-	_status = StoreKISSPaymentRequestStatusFinished;
+	self.status = StoreKISSPaymentRequestStatusFinished;
     
     if (self.error != nil)
     {
@@ -254,7 +255,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 // ------------------------------------------------------------------------------------------
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions 
 {
-    _skTransactions = transactions;
+    self.skTransactions = transactions;
     
     BOOL allTransactionsOnTheQueueAreFinished = YES;
     
@@ -265,7 +266,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
         {
             if ([skTransaction.payment isEqual:self.skPayment])
             {
-                _skTransaction = skTransaction;
+                self.skTransaction = skTransaction;
             }
         }
         
@@ -317,16 +318,16 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
             {
                 if (self.skTransaction != nil)
                 {
-                    _error = self.skTransaction.error;
+                    self.error = self.skTransaction.error;
                 }
                 else
                 {
                     NSDictionary *userInfo =
                         @{NSLocalizedDescriptionKey: @"One of several transactions failed, "
                                                       "please see transactions array property for errors."};
-                    _error = [NSError errorWithDomain:StoreKISSErrorDomain
-                                                 code:StoreKISSErrorTransactionFailed
-                                             userInfo:userInfo];
+                    self.error = [NSError errorWithDomain:StoreKISSErrorDomain
+                                                     code:StoreKISSErrorTransactionFailed
+                                                 userInfo:userInfo];
                 }
                 
                 NSDictionary *userInfo = @{StoreKISSNotificationPaymentRequestTransactionKey: skTransaction,
@@ -365,7 +366,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     if ( ! [self isFinished])
     {
-        _error = error;
+        self.error = error;
         [self finish];
     }
 }
