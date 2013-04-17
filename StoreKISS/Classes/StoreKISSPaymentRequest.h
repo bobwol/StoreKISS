@@ -13,16 +13,18 @@
 @class StoreKISSPaymentRequest;
 
 
-typedef enum {
-	StoreKISSPaymentRequestStatusNew = 0,
-	StoreKISSPaymentRequestStatusStarted,
-	StoreKISSPaymentRequestStatusFinished
-} StoreKISSPaymentRequestStatus;
+typedef NS_ENUM(NSInteger, StoreKISSPaymentRequestStatus)
+{
+    StoreKISSPaymentRequestStatusNew = 0,
+    StoreKISSPaymentRequestStatusStarted,
+    StoreKISSPaymentRequestStatusFinished
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, StoreKISSNotificationPaymentRequestSuccessResult)
+{
     StoreKISSNotificationPaymentRequestSuccessResultPurchased = 0,
     StoreKISSNotificationPaymentRequestSuccessResultRestored
-} StoreKISSNotificationPaymentRequestSuccessResult;
+};
 
 typedef void (^StoreKISSPaymentRequestSuccessBlock)(StoreKISSPaymentRequest *request);
 typedef void (^StoreKISSPaymentRequestFailureBlock)(NSError *error);
@@ -117,8 +119,8 @@ extern NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved;
  @param success Block that will be called after successful ending of the operation.
  @param failure Block that will be called in case of error. */
 - (void)makePaymentWithSKProduct:(SKProduct *)skProduct
-						 success:(StoreKISSPaymentRequestSuccessBlock)success
-						 failure:(StoreKISSPaymentRequestFailureBlock)failure;
+                         success:(StoreKISSPaymentRequestSuccessBlock)success
+                         failure:(StoreKISSPaymentRequestFailureBlock)failure;
 
 /** Make payment with SKProduct. A shortcut to use with notifications.
  

@@ -40,7 +40,6 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 
 @implementation StoreKISSPaymentRequest
 
-
 @synthesize reachability = _reachability;
 
 
@@ -65,7 +64,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 // ------------------------------------------------------------------------------------------
 - (id<StoreKISSReachabilityProtocol>)reachability
 {
-    ZAssert(_reachability != nil, @"Reachability wrapper must be provided!");
+    NSAssert(_reachability != nil, @"Reachability wrapper must be provided!");
     return _reachability;
 }
 
@@ -83,7 +82,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     if ([self canMakePayments] == NO)
     {
-        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: @"In-App Purchasing is disabled."};
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"In-App Purchasing is disabled.", nil)};
 		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                          code:StoreKISSErrorIAPDisabled
                                      userInfo:userInfo];
@@ -95,7 +94,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     if ([self.reachability hasReachableInternetConnection] == NO)
     {
-        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", @"")};
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", nil)};
 		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                          code:StoreKISSErrorNoInternetConnection
                                      userInfo:userInfo];
@@ -107,7 +106,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 {
     if (skProduct == nil)
     {
-        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: @"SKProduct should not be nil."};
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"SKProduct should not be nil.", nil)};
 		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                          code:StoreKISSErrorInvalidSKProduct
                                      userInfo:userInfo];
@@ -322,9 +321,9 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
                 }
                 else
                 {
-                    NSDictionary *userInfo =
-                        @{NSLocalizedDescriptionKey: @"One of several transactions failed, "
-                                                      "please see transactions array property for errors."};
+                    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: 
+                                               NSLocalizedString(@"One of several transactions failed, please "
+                                                                  "see transactions array property for errors.", nil};
                     self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                                      code:StoreKISSErrorTransactionFailed
                                                  userInfo:userInfo];

@@ -11,6 +11,6 @@
 @protocol StoreKISSReachabilityProtocol <NSObject>
 
 @required
-    - (BOOL)hasReachableInternetConnection;
+- (BOOL)hasReachableInternetConnection;
 
 @end

@@ -92,7 +92,7 @@ NSString * const StoreKISSNotificationDataRequestFailure =
 	
 	if ([self.reachability hasReachableInternetConnection] == NO)
     {
-        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", @"")};
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: NSLocalizedString(@"No internet connection.", nil)};
 		self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                          code:StoreKISSErrorNoInternetConnection
                                      userInfo:userInfo];
