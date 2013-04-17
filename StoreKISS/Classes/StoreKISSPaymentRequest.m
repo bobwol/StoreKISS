@@ -325,7 +325,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
                 {
                     NSDictionary *userInfo = @{NSLocalizedDescriptionKey: 
                                                NSLocalizedString(@"One of several transactions failed, please "
-                                                                  "see transactions array property for errors.", nil};
+                                                                  "see transactions array property for errors.", nil)};
                     self.error = [NSError errorWithDomain:StoreKISSErrorDomain
                                                      code:StoreKISSErrorTransactionFailed
                                                  userInfo:userInfo];
