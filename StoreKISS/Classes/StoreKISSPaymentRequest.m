@@ -121,10 +121,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 						 success:(StoreKISSPaymentRequestSuccessBlock)success
 						 failure:(StoreKISSPaymentRequestFailureBlock)failure
 {
-	if ([self isExecuting])
-    {
-		return;
-	}
+	NSAssert([self isExecuting] == NO, @"Payment request is executing already.");
     
     self.success = success;
 	self.failure = failure;
@@ -135,6 +132,10 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
     
     if (self.error)
     {
+        NSDictionary *userInfo = @{StoreKISSNotificationPaymentRequestErrorKey: self.error};
+        [[NSNotificationCenter defaultCenter] postNotificationName:StoreKISSNotificationPaymentRequestFailure
+                                                            object:self
+                                                          userInfo:userInfo];
         [self finish];
         return;
     }
@@ -157,10 +158,7 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
 - (void)restorePaymentsWithSuccess:(StoreKISSPaymentRequestSuccessBlock)success
                            failure:(StoreKISSPaymentRequestFailureBlock)failure
 {
-    if ([self isExecuting])
-    {
-		return;
-	}
+    NSAssert([self isExecuting] == NO, @"Payment request is executing already.");
     
     self.success = success;
 	self.failure = failure;
@@ -170,6 +168,10 @@ NSString * const StoreKISSNotificationPaymentRequestTransactionRemoved =
     
     if (self.error)
     {
+        NSDictionary *userInfo = @{StoreKISSNotificationPaymentRequestErrorKey: self.error};
+        [[NSNotificationCenter defaultCenter] postNotificationName:StoreKISSNotificationPaymentRequestFailure
+                                                            object:self
+                                                          userInfo:userInfo];
         [self finish];
         return;
     }
